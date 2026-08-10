@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Volume — aula interativa · 7º ano</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Karla:wght@400;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --papel:#E7EDEF;
+  --card:#FFFFFF;
+  --tinta:#0F2430;
+  --tinta-2:#4E6673;
+  --linha:rgba(15,36,48,.16);
+  --cubo-top:#FFD97A;
+  --cubo-left:#F0B33C;
+  --cubo-right:#C98A1E;
+  --uva-top:#B79BE0;
+  --uva-left:#8E6BC4;
+  --uva-right:#6C3FA0;
+  --agua:#136F92;
+  --agua-claro:#DCEEF4;
+  --menta:#0E7A57;
+  --brasa:#C93A29;
+  --sombra:2px 2px 0 var(--tinta);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;
+  background-color:var(--papel);
+  background-image:
+    linear-gradient(rgba(15,36,48,.055) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(15,36,48,.055) 1px, transparent 1px);
+  background-size:26px 26px;
+  color:var(--tinta);
+  font-family:'Karla',system-ui,sans-serif;
+  font-size:17px;
+  line-height:1.6;
+}
+.wrap{max-width:880px;margin:0 auto;padding:0 18px 80px}
+h1,h2,h3{font-family:'Bricolage Grotesque','Karla',sans-serif;line-height:1.05;margin:0}
+.mono{font-family:'Space Mono',monospace}
+
+/* ---------- HERO ---------- */
+.hero{padding:44px 0 26px;text-align:center}
+.eyebrow{
+  font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.18em;
+  text-transform:uppercase;color:var(--agua);margin:0 0 14px
+}
+.hero h1{font-size:clamp(56px,17vw,124px);font-weight:800;letter-spacing:-.04em}
+.hero p{max-width:34ch;margin:14px auto 0;color:var(--tinta-2);font-size:18px}
+#heroScene{height:210px;margin:6px auto 0}
+
+/* ---------- TRILHA ---------- */
+.trilha{
+  background:var(--card);border:2px solid var(--tinta);border-radius:6px;
+  box-shadow:4px 4px 0 rgba(15,36,48,.18);padding:18px;margin:10px 0 40px
+}
+.trilha h3{font-size:15px;text-transform:uppercase;letter-spacing:.1em;margin-bottom:12px}
+.trilha ol{list-style:none;margin:0;padding:0;display:grid;gap:8px;
+  grid-template-columns:repeat(auto-fit,minmax(210px,1fr))}
+.trilha a{
+  display:flex;gap:10px;align-items:baseline;text-decoration:none;color:var(--tinta);
+  border:1px solid var(--linha);border-radius:4px;padding:9px 11px;background:#fff;
+  transition:background .15s, transform .15s
+}
+.trilha a:hover{background:var(--agua-claro);transform:translateX(3px)}
+.trilha .n{font-family:'Space Mono',monospace;color:var(--agua);font-weight:700;font-size:14px}
+
+/* ---------- ETAPAS ---------- */
+.etapa{margin:0 0 54px;scroll-margin-top:16px}
+.etapa-cab{display:flex;align-items:center;gap:14px;margin-bottom:14px}
+.selo{
+  flex:none;width:46px;height:46px;border-radius:6px;background:var(--cubo-top);
+  border:2px solid var(--tinta);box-shadow:var(--sombra);
+  display:grid;place-items:center;font-family:'Bricolage Grotesque',sans-serif;
+  font-weight:800;font-size:22px
+}
+.etapa h2{font-size:clamp(26px,5.2vw,36px);font-weight:800;letter-spacing:-.02em}
+.etapa-cab .sub{font-family:'Space Mono',monospace;font-size:12px;color:var(--tinta-2);
+  text-transform:uppercase;letter-spacing:.12em;display:block;margin-bottom:3px}
+.painel{
+  background:var(--card);border:2px solid var(--tinta);border-radius:8px;
+  box-shadow:5px 5px 0 rgba(15,36,48,.16);padding:20px
+}
+.painel + .painel{margin-top:16px}
+.painel p:first-child{margin-top:0}
+.painel p:last-child{margin-bottom:0}
+.painel h3{font-size:20px;margin:26px 0 8px}
+.painel h3:first-child{margin-top:0}
+
+/* ---------- CENA 3D ---------- */
+.scene{position:relative;width:100%;height:250px;overflow:hidden}
+.stage{position:absolute;left:50%;top:50%;transform-style:preserve-3d}
+.inner{position:absolute;transform-style:preserve-3d}
+.cube{position:absolute;top:0;left:0;transform-style:preserve-3d}
+.face{position:absolute;top:0;left:0;transform-origin:0 0;border:1px solid rgba(15,36,48,.35)}
+.face.top{background:var(--cubo-top)}
+.face.left{background:var(--cubo-left)}
+.face.right{background:var(--cubo-right)}
+.c-uva .face.top{background:var(--uva-top)}
+.c-uva .face.left{background:var(--uva-left)}
+.c-uva .face.right{background:var(--uva-right)}
+.cube.entra{animation:pop .28s ease-out both}
+@keyframes pop{from{opacity:0}to{opacity:1}}
+
+/* ---------- CONTROLES ---------- */
+.controles{display:grid;gap:14px;margin-top:14px}
+@media(min-width:620px){.controles.tres{grid-template-columns:repeat(3,1fr)}}
+.ctrl label{display:flex;justify-content:space-between;font-weight:700;font-size:14px;margin-bottom:4px}
+.ctrl label .val{font-family:'Space Mono',monospace;color:var(--agua)}
+input[type=range]{width:100%;accent-color:var(--agua);height:26px}
+.btn{
+  font-family:'Karla',sans-serif;font-weight:700;font-size:15px;cursor:pointer;
+  background:var(--card);color:var(--tinta);border:2px solid var(--tinta);border-radius:5px;
+  padding:9px 15px;box-shadow:var(--sombra);transition:transform .1s, box-shadow .1s
+}
+.btn:hover{transform:translate(1px,1px);box-shadow:1px 1px 0 var(--tinta)}
+.btn:active{transform:translate(2px,2px);box-shadow:none}
+.btn.primaria{background:var(--cubo-top)}
+.btn.agua{background:var(--agua);color:#fff;border-color:var(--agua)}
+.linha-btn{display:flex;flex-wrap:wrap;gap:9px;margin-top:12px}
+:focus-visible{outline:3px solid var(--agua);outline-offset:2px}
+
+/* ---------- DESTAQUES ---------- */
+.formula{
+  font-family:'Space Mono',monospace;font-size:clamp(15px,3.6vw,21px);font-weight:700;
+  background:var(--agua-claro);border-left:5px solid var(--agua);
+  padding:13px 15px;border-radius:0 5px 5px 0;margin:14px 0;overflow-x:auto
+}
+.placar{
+  font-family:'Space Mono',monospace;font-size:clamp(14px,3.4vw,19px);
+  text-align:center;background:#FFF6E0;border:2px dashed var(--cubo-right);
+  border-radius:6px;padding:12px;margin-top:12px
+}
+.placar b{font-size:1.25em;color:var(--brasa)}
+.dica{
+  background:#F3F6F7;border:1px solid var(--linha);border-radius:6px;padding:12px 14px;
+  font-size:15px;color:var(--tinta-2);margin-top:14px
+}
+.dica b{color:var(--tinta)}
+
+/* ---------- UNIDADES ---------- */
+.unidades{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));margin-top:8px}
+.uni-card{border:2px solid var(--tinta);border-radius:6px;padding:14px;text-align:center;background:#fff}
+.uni-card .quad{height:104px;display:grid;place-items:center}
+.quad i{display:block;background:var(--cubo-top);border:2px solid var(--tinta)}
+.uni-card h4{margin:8px 0 4px;font-family:'Bricolage Grotesque',sans-serif;font-size:20px}
+.uni-card .aresta{font-family:'Space Mono',monospace;font-size:13px;color:var(--agua);display:block}
+.uni-card small{color:var(--tinta-2);display:block;font-size:14px;line-height:1.4;margin-top:6px}
+
+/* ---------- ESCADA DAS UNIDADES ---------- */
+.escada{margin:18px 0 0;display:grid;gap:0}
+.degrau{
+  display:flex;align-items:center;gap:14px;border:2px solid var(--tinta);border-radius:6px;
+  background:#fff;padding:12px 16px;box-shadow:var(--sombra)
+}
+.degrau .u{font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:26px;min-width:64px}
+.degrau .txt{font-size:15px;color:var(--tinta-2)}
+.degrau.d1{margin-left:0;background:#FFF6E0}
+.degrau.d2{margin-left:24px}
+.degrau.d3{margin-left:48px;background:var(--agua-claro)}
+.entre{display:flex;gap:12px;align-items:center;padding:8px 0 8px 22px;font-size:14px;font-weight:700}
+.entre .desce{color:var(--brasa)}
+.entre .sobe{color:var(--agua)}
+@media(max-width:520px){
+  .degrau.d2{margin-left:12px}.degrau.d3{margin-left:24px}
+  .entre{flex-direction:column;align-items:flex-start;gap:4px;padding-left:14px}
+}
+.exemplos{width:100%;border-collapse:collapse;margin-top:16px;font-size:15px}
+.exemplos th,.exemplos td{border:1px solid var(--linha);padding:9px 11px;text-align:left}
+.exemplos th{background:#F3F6F7;font-size:13px;text-transform:uppercase;letter-spacing:.06em}
+.exemplos td.conta{font-family:'Space Mono',monospace;white-space:nowrap}
+
+/* ---------- RESUMO ---------- */
+.resumo{background:var(--tinta);color:#F2F7F9;border-radius:8px;padding:22px;margin:0 0 54px}
+.resumo h2{color:#fff;font-size:26px;margin-bottom:12px}
+.resumo ul{margin:0;padding-left:20px}
+.resumo li{margin:9px 0}
+.resumo code{font-family:'Space Mono',monospace;color:var(--cubo-top);font-size:.95em}
+
+/* ---------- QUESTIONÁRIO ---------- */
+.quiz{border:3px solid var(--tinta);border-radius:10px;background:var(--card);
+  box-shadow:6px 6px 0 rgba(15,36,48,.2);padding:22px}
+.barra{height:10px;background:#E4EAEC;border-radius:99px;overflow:hidden;margin:14px 0 6px}
+.barra i{display:block;height:100%;width:0;background:var(--agua);transition:width .35s ease}
+.contador{font-family:'Space Mono',monospace;font-size:13px;color:var(--tinta-2);display:flex;justify-content:space-between}
+.pergunta{font-size:19px;font-weight:700;margin:16px 0 6px;line-height:1.35}
+.contexto{font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--agua);margin:0}
+.aviso{font-size:14px;color:var(--tinta-2);margin:0 0 10px}
+.opcoes{display:grid;gap:9px;margin-top:10px}
+.opcao{
+  text-align:left;font-family:'Karla',sans-serif;font-size:16px;cursor:pointer;background:#fff;
+  border:2px solid var(--linha);border-radius:6px;padding:12px 14px;
+  transition:background .12s,border-color .12s;position:relative
+}
+.opcao:hover{background:var(--agua-claro);border-color:var(--agua)}
+.opcao.certa{border-color:var(--menta);background:#E7F6F0}
+.opcao.errada{border-color:var(--brasa);background:#FCEBE8}
+.opcao .marca{float:right;font-family:'Space Mono',monospace;font-weight:700}
+.opcao.certa .marca{color:var(--menta)}
+.opcao.errada .marca{color:var(--brasa)}
+.opcao:disabled{cursor:default}
+.explica{
+  display:none;margin-top:14px;padding:13px 15px;border-radius:6px;font-size:15px;
+  background:#F3F6F7;border-left:5px solid var(--agua)
+}
+.explica.on{display:block;animation:sobe .3s ease-out both}
+@keyframes sobe{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.explica b{display:block;margin-bottom:3px}
+.final{text-align:center;display:none}
+.final.on{display:block}
+.final .nota{font-family:'Bricolage Grotesque',sans-serif;font-size:clamp(52px,14vw,86px);font-weight:800;line-height:1}
+.final .nota small{font-size:.35em;color:var(--tinta-2)}
+.gabarito{text-align:left;margin-top:18px;border-top:1px solid var(--linha)}
+.gabarito div{display:flex;gap:10px;padding:9px 0;border-bottom:1px solid var(--linha);font-size:15px}
+.gabarito .mk{font-family:'Space Mono',monospace;font-weight:700}
+.gabarito .mk.ok{color:var(--menta)}
+.gabarito .mk.no{color:var(--brasa)}
+
+footer{text-align:center;color:var(--tinta-2);font-size:14px;margin-top:46px}
+@media (prefers-reduced-motion: reduce){
+  *{animation:none!important;transition:none!important}
+  html{scroll-behavior:auto}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- ================= HERO ================= -->
+<header class="hero">
+  <p class="eyebrow">Matemática · 7º ano · Geometria espacial</p>
+  <h1>VOLUME</h1>
+  <div class="scene" id="heroScene"></div>
+  <p>Volume é o espaço que um objeto ocupa. E medir esse espaço é, no fundo, contar cubinhos.</p>
+</header>
+
+<nav class="trilha">
+  <h3>A trilha de hoje</h3>
+  <ol>
+    <li><a href="#e1"><span class="n">01</span> A fórmula V = a · b · h</a></li>
+    <li><a href="#e2"><span class="n">02</span> cm³, dm³ e m³</a></li>
+    <li><a href="#quiz"><span class="n">03</span> Questionário final</a></li>
+  </ol>
+</nav>
+
+<!-- ================= ETAPA 1 ================= -->
+<section class="etapa" id="e1">
+  <div class="etapa-cab">
+    <div class="selo">1</div>
+    <div><span class="sub">Etapa 1</span><h2>A fórmula V = a · b · h</h2></div>
+  </div>
+
+  <div class="painel">
+    <p>Para medir o espaço dentro de uma caixa, escolhemos um <b>cubinho</b> como unidade e enchemos a caixa com ele, sem buracos e sem sobrepor. O volume é a quantidade de cubinhos que couberam.</p>
+    <p>Repare que ninguém precisa contar de 1 em 1: os cubinhos formam camadas. Se a base tem 3 por 5 cubinhos, cada camada tem 15. Duas camadas, 30 cubinhos. Daí vem a fórmula:</p>
+    <div class="formula">V = a · b · h &nbsp;&nbsp;→&nbsp;&nbsp; comprimento × largura × altura</div>
+    <p>Mexa nos controles e veja o bloco mudar. O último controle gira o bloco, para você enxergar por outro ângulo.</p>
+
+    <div class="scene" id="builderScene" style="height:290px"></div>
+
+    <div class="controles tres">
+      <div class="ctrl">
+        <label for="ra">comprimento (a) <span class="val" id="va">4</span></label>
+        <input type="range" id="ra" min="1" max="6" value="4" aria-label="comprimento do bloco">
+      </div>
+      <div class="ctrl">
+        <label for="rb">largura (b) <span class="val" id="vb">3</span></label>
+        <input type="range" id="rb" min="1" max="6" value="3" aria-label="largura do bloco">
+      </div>
+      <div class="ctrl">
+        <label for="rh">altura (h) <span class="val" id="vh">2</span></label>
+        <input type="range" id="rh" min="1" max="6" value="2" aria-label="altura do bloco">
+      </div>
+    </div>
+    <div class="ctrl" style="margin-top:12px">
+      <label for="rg">girar o bloco <span class="val" id="vg">45°</span></label>
+      <input type="range" id="rg" min="-85" max="-5" value="-45" aria-label="girar o bloco">
+    </div>
+
+    <div class="placar" id="builderPlacar"></div>
+
+    <div class="dica"><b>Cubo é um caso especial.</b> Quando as três medidas são iguais, o volume vira aresta × aresta × aresta, ou seja, a aresta ao cubo. Deixe os três controles no mesmo número e confira.</div>
+  </div>
+</section>
+
+<!-- ================= ETAPA 2 ================= -->
+<section class="etapa" id="e2">
+  <div class="etapa-cab">
+    <div class="selo">2</div>
+    <div><span class="sub">Etapa 2</span><h2>cm³, dm³ e m³</h2></div>
+  </div>
+
+  <div class="painel">
+    <h3>O nome vem do cubinho</h3>
+    <p>A unidade de volume recebe o nome da <b>aresta do cubo</b> que você usou para medir. Mediu com cubinhos de 1 cm de aresta? A resposta sai em <b>centímetros cúbicos</b>. Com cubos de 1 m? Sai em <b>metros cúbicos</b>. O expoente 3 está ali para lembrar que multiplicamos três medidas.</p>
+
+    <div class="unidades">
+      <div class="uni-card">
+        <div class="quad"><i style="width:14px;height:14px"></i></div>
+        <h4>1 cm³</h4><span class="aresta">aresta de 1 cm</span>
+        <small>Do tamanho de um dado. Serve para medir coisas pequenas: uma borracha, uma caixinha de fósforos.</small>
+      </div>
+      <div class="uni-card">
+        <div class="quad"><i style="width:44px;height:44px"></i></div>
+        <h4>1 dm³</h4><span class="aresta">aresta de 1 dm = 10 cm</span>
+        <small>Cabe exatamente 1 litro dentro. Serve para caixas de sapato, potes, mochilas.</small>
+      </div>
+      <div class="uni-card">
+        <div class="quad"><i style="width:96px;height:96px"></i></div>
+        <h4>1 m³</h4><span class="aresta">aresta de 1 m = 10 dm</span>
+        <small>Quase do tamanho de uma máquina de lavar. Serve para salas, piscinas, caçambas.</small>
+      </div>
+    </div>
+
+    <h3>Por que aparece o número 1 000?</h3>
+    <p>Aqui está o ponto que mais confunde. Na medida de comprimento, 1 dm = 10 cm — a diferença é 10. Mas volume tem <b>três</b> dimensões, e o 10 entra três vezes:</p>
+    <div class="formula">1 dm³ = 10 cm · 10 cm · 10 cm = 1 000 cm³</div>
+    <p>Ou seja: dentro de um único cubo de 1 dm de aresta cabem <b>mil</b> cubinhos de 1 cm. Veja o cubo abaixo — ele tem 10 cubinhos em cada direção.</p>
+
+    <div class="scene" id="milScene" style="height:260px"></div>
+    <div class="placar">10 · 10 · 10 = <b>1 000</b> cubinhos de 1 cm³ dentro de 1 dm³</div>
+    <p style="margin-top:14px">Pelo mesmo motivo, 1 m³ = 10 dm · 10 dm · 10 dm = <b>1 000 dm³</b>.</p>
+
+    <h3>A escada das unidades</h3>
+    <p>Pense em três degraus. Do maior para o menor: <b>m³ → dm³ → cm³</b>. Cada degrau vale 1 000.</p>
+
+    <div class="escada">
+      <div class="degrau d1"><span class="u">m³</span><span class="txt">metro cúbico — o maior dos três</span></div>
+      <div class="entre"><span class="desce">↓ descer um degrau: × 1 000</span><span class="sobe">↑ subir um degrau: ÷ 1 000</span></div>
+      <div class="degrau d2"><span class="u">dm³</span><span class="txt">decímetro cúbico — o do meio (1 litro)</span></div>
+      <div class="entre"><span class="desce">↓ descer um degrau: × 1 000</span><span class="sobe">↑ subir um degrau: ÷ 1 000</span></div>
+      <div class="degrau d3"><span class="u">cm³</span><span class="txt">centímetro cúbico — o menor dos três</span></div>
+    </div>
+
+    <div class="dica"><b>Como não errar o sentido.</b> Descendo a escada, a unidade fica menor, então são precisos <b>mais</b> cubinhos para encher o mesmo espaço: o número <b>aumenta</b>, e por isso multiplicamos. Subindo a escada, a unidade fica maior, precisamos de <b>menos</b> cubos: o número <b>diminui</b>, e por isso dividimos.</p>
+    </div>
+
+    <h3>Exemplos resolvidos</h3>
+    <table class="exemplos">
+      <tr><th>Converter</th><th>Caminho na escada</th><th>Conta</th><th>Resultado</th></tr>
+      <tr><td>2,83 dm³ → cm³</td><td>desce 1</td><td class="conta">2,83 × 1 000</td><td class="conta">2 830 cm³</td></tr>
+      <tr><td>5 m³ → dm³</td><td>desce 1</td><td class="conta">5 × 1 000</td><td class="conta">5 000 dm³</td></tr>
+      <tr><td>4 500 cm³ → dm³</td><td>sobe 1</td><td class="conta">4 500 ÷ 1 000</td><td class="conta">4,5 dm³</td></tr>
+      <tr><td>2 m³ → cm³</td><td>desce 2</td><td class="conta">2 × 1 000 × 1 000</td><td class="conta">2 000 000 cm³</td></tr>
+      <tr><td>1 cm³ → m³</td><td>sobe 2</td><td class="conta">1 ÷ 1 000 ÷ 1 000</td><td class="conta">0,000001 m³</td></tr>
+    </table>
+
+    <div class="dica"><b>Atenção ao pular degraus.</b> Quando a conversão salta de m³ direto para cm³, são dois degraus: 1 000 × 1 000 = 1 000 000. Fazer um degrau de cada vez evita erro.</div>
+  </div>
+</section>
+
+<!-- ================= RESUMO ================= -->
+<section class="resumo">
+  <h2>Antes do questionário, relembre</h2>
+  <ul>
+    <li>Volume é a quantidade de cubinhos que enche o espaço de um objeto.</li>
+    <li>No bloco retangular: <code>V = a · b · h</code>, comprimento vezes largura vezes altura.</li>
+    <li>No cubo, as três medidas são iguais: <code>V = aresta · aresta · aresta</code>.</li>
+    <li>A unidade tem o nome da aresta do cubinho usado: <code>cm³</code>, <code>dm³</code> ou <code>m³</code>.</li>
+    <li>Cada degrau da escada vale mil, porque o 10 entra três vezes: <code>1 dm³ = 1 000 cm³</code> e <code>1 m³ = 1 000 dm³</code>.</li>
+    <li>Descendo a escada (unidade menor), <code>× 1 000</code>. Subindo (unidade maior), <code>÷ 1 000</code>.</li>
+    <li>Pulou dois degraus? O fator é <code>1 000 000</code>.</li>
+    <li>Toda resposta de volume vem acompanhada da unidade cúbica.</li>
+  </ul>
+</section>
+
+<!-- ================= QUESTIONÁRIO ================= -->
+<section class="etapa" id="quiz">
+  <div class="etapa-cab">
+    <div class="selo">3</div>
+    <div><span class="sub">Etapa 3</span><h2>Questionário</h2></div>
+  </div>
+
+  <div class="quiz">
+    <div id="quizAtivo">
+      <div class="contador"><span id="qNum">Questão 1 de 12</span><span id="qAcertos">0 acertos</span></div>
+      <div class="barra"><i id="qBarra"></i></div>
+      <p class="contexto" id="qContexto"></p>
+      <p class="pergunta" id="qTexto"></p>
+      <p class="aviso">Toque na alternativa que você acha certa — a correção aparece na hora.</p>
+      <div class="opcoes" id="qOpcoes"></div>
+      <div class="explica" id="qExplica"></div>
+      <div class="linha-btn">
+        <button class="btn agua" id="qProxima" style="display:none">Próxima questão</button>
+      </div>
+    </div>
+
+    <div class="final" id="quizFinal">
+      <p class="eyebrow">Resultado</p>
+      <div class="nota"><span id="fNota">0</span><small>/12</small></div>
+      <p id="fRecado" style="font-weight:700;margin:6px 0 0"></p>
+      <div class="gabarito" id="fGabarito"></div>
+      <div class="linha-btn" style="justify-content:center;margin-top:18px">
+        <button class="btn primaria" id="qRefazer">Refazer o questionário</button>
+        <button class="btn" id="qTopo">Voltar ao começo</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>Aula interativa de volume · 7º ano · construída a partir do material de Volume, área e perímetro.</footer>
+</div>
+
+<script>
+/* =========================================================
+   MOTOR 3D: cubinhos em projeção isométrica com CSS
+   ========================================================= */
+const RX = 60;
+function faceStyle(s){
+  return {
+    top:`translateZ(${s}px)`,
+    left:`rotateX(90deg)`,
+    right:`translateX(${s}px) rotateY(-90deg)`
+  };
+}
+function novoCubo(s, classe, anim, delay){
+  const c = document.createElement('div');
+  c.className = 'cube' + (classe ? ' ' + classe : '') + (anim ? ' entra' : '');
+  c.style.width = c.style.height = s + 'px';
+  if(anim) c.style.animationDelay = delay + 'ms';
+  const fs = faceStyle(s);
+  ['top','left','right'].forEach(f=>{
+    const d = document.createElement('div');
+    d.className = 'face ' + f;
+    d.style.width = d.style.height = s + 'px';
+    d.style.transform = fs[f];
+    c.appendChild(d);
+  });
+  return c;
+}
+function desenhar(sceneEl, cubos, opts={}){
+  const rot = opts.rot ?? -45;
+  const rad = rot * Math.PI/180;
+  const sin = Math.sin(rad), cos = Math.cos(rad);
+
+  let mi=0,mj=0,mk=0;
+  cubos.forEach(c=>{ mi=Math.max(mi,c.i+1); mj=Math.max(mj,c.j+1); mk=Math.max(mk,c.k+1); });
+  const larguraUn = (mi+mj)*0.72;
+  const alturaUn  = (mi+mj)*0.37 + mk;
+  const W = sceneEl.clientWidth || 320;
+  const H = sceneEl.clientHeight || 250;
+  let s = Math.floor(Math.min(W/larguraUn*0.88, H/alturaUn*0.88));
+  s = Math.max(6, Math.min(opts.escala || 44, s));
+
+  sceneEl.innerHTML = '';
+  const stage = document.createElement('div');
+  stage.className = 'stage';
+  stage.style.transform = `rotateX(${RX}deg) rotateZ(${rot}deg)`;
+  const inner = document.createElement('div');
+  inner.className = 'inner';
+  inner.style.transform = `translate3d(${-mi*s/2}px, ${-mj*s/2}px, ${-mk*s/2}px)`;
+
+  const ordenados = cubos.slice().sort((A,B)=>{
+    const dA = (A.i*sin + A.j*cos)*0.866 + A.k*0.5;
+    const dB = (B.i*sin + B.j*cos)*0.866 + B.k*0.5;
+    return dA - dB;
+  });
+  ordenados.forEach((c, idx)=>{
+    const el = novoCubo(s, c.cls, !!opts.anim, (opts.anim ? idx*(opts.passo||18) : 0));
+    el.style.transform = `translate3d(${c.i*s}px,${c.j*s}px,${c.k*s}px)`;
+    inner.appendChild(el);
+  });
+  stage.appendChild(inner);
+  sceneEl.appendChild(stage);
+}
+/* casca = desenha só os cubinhos visíveis (economiza processamento) */
+function bloco(a,b,h,cls,casca){
+  const out=[];
+  for(let i=0;i<a;i++) for(let j=0;j<b;j++) for(let k=0;k<h;k++){
+    if(casca && !(i===a-1 || j===0 || k===h-1)) continue;
+    out.push({i,j,k,cls});
+  }
+  return out;
+}
+const semMovimento = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* ---------- HERO ---------- */
+const heroScene = document.getElementById('heroScene');
+function pintaHero(){ desenhar(heroScene, bloco(4,3,2), {rot:-45, anim:!semMovimento, passo:22, escala:34}); }
+pintaHero();
+
+/* ---------- ETAPA 1: construtor ---------- */
+const builderScene = document.getElementById('builderScene');
+const builderPlacar = document.getElementById('builderPlacar');
+const ra=document.getElementById('ra'), rb=document.getElementById('rb'),
+      rh=document.getElementById('rh'), rg=document.getElementById('rg');
+function pintaBuilder(){
+  const a=+ra.value, b=+rb.value, h=+rh.value, g=+rg.value;
+  document.getElementById('va').textContent=a;
+  document.getElementById('vb').textContent=b;
+  document.getElementById('vh').textContent=h;
+  document.getElementById('vg').textContent=Math.abs(g)+'°';
+  desenhar(builderScene, bloco(a,b,h), {rot:g, escala:40});
+  const ehCubo = (a===b && b===h);
+  builderPlacar.innerHTML = `V = ${a} · ${b} · ${h} = <b>${a*b*h}</b> cubinhos`
+    + (ehCubo ? `<br><span style="font-size:.85em">É um cubo! V = ${a} · ${a} · ${a} = ${a*b*h}</span>` : '');
+}
+[ra,rb,rh,rg].forEach(r=>r.addEventListener('input', pintaBuilder));
+pintaBuilder();
+
+/* ---------- ETAPA 2: cubo dos mil cubinhos ---------- */
+const milScene = document.getElementById('milScene');
+function pintaMil(){ desenhar(milScene, bloco(10,10,10,'',true), {rot:-45, escala:22}); }
+pintaMil();
+
+/* redesenho ao girar a tela */
+let t;
+window.addEventListener('resize', ()=>{
+  clearTimeout(t);
+  t = setTimeout(()=>{ pintaHero(); pintaBuilder(); pintaMil(); }, 200);
+});
+
+/* =========================================================
+   QUESTIONÁRIO — só múltipla escolha, corrige ao clicar
+   ========================================================= */
+const questoes = [
+  { ctx:'Contando cubinhos',
+    q:'Um bloco foi montado com 3 camadas, e cada camada tem 4 · 5 cubinhos. Qual é o volume, em cubinhos?',
+    ops:['12','20','45','60'], certa:3,
+    exp:'Cada camada tem 4 · 5 = 20 cubinhos. Com 3 camadas: 3 · 20 = 60 cubinhos.' },
+
+  { ctx:'Fórmula V = a · b · h',
+    q:'Qual é o volume de um bloco retangular de 9 dm por 8 dm por 5 dm?',
+    ops:['22 dm³','40 dm³','360 dm³','720 dm³'], certa:2,
+    exp:'V = 9 · 8 · 5 = 360 dm³. A ordem da multiplicação não muda o resultado.' },
+
+  { ctx:'Fórmula V = a · b · h',
+    q:'Uma peça tem 8 cm de comprimento, 6 cm de largura e 1 cm de altura. Qual é o volume?',
+    ops:['15 cm³','48 cm³','48 cm²','86 cm³'], certa:1,
+    exp:'V = 8 · 6 · 1 = 48 cm³. Mesmo bem fininha, a peça tem volume — e a unidade é cúbica, não cm².' },
+
+  { ctx:'Fórmula V = a · b · h',
+    q:'Um caixote mede 6 m de comprimento, 4 m de largura e 2 m de altura. Qual é o volume?',
+    ops:['12 m³','24 m³','48 m³','96 m³'], certa:2,
+    exp:'V = 6 · 4 · 2 = 48 m³. Multiplique duas medidas primeiro (6 · 4 = 24) e depois pela terceira.' },
+
+  { ctx:'Cubos',
+    q:'Um cubo tem 5 cm de aresta. Qual é o seu volume?',
+    ops:['15 cm³','25 cm³','125 cm³','150 cm³'], certa:2,
+    exp:'No cubo as três medidas são iguais: 5 · 5 · 5 = 125 cm³. O 25 é a área de uma face.' },
+
+  { ctx:'Cubos',
+    q:'Um cubo tem 0,6 m de aresta. Qual é o seu volume?',
+    ops:['0,216 m³','0,36 m³','1,8 m³','3,6 m³'], certa:0,
+    exp:'V = 0,6 · 0,6 · 0,6 = 0,216 m³. O 0,36 seria só 0,6 · 0,6, ou seja, a área de uma face.' },
+
+  { ctx:'Unidades cúbicas',
+    q:'Qual unidade é a mais adequada para dizer quanto espaço tem uma sala de aula?',
+    ops:['cm³','dm³','m³','litro por cm'], certa:2,
+    exp:'A sala é grande, então usamos o cubo grande: metros cúbicos. Em cm³ o número ficaria enorme e difícil de ler.' },
+
+  { ctx:'Fórmula V = a · b · h',
+    q:'Uma embalagem tem 4 cm de comprimento, 2 cm de largura e 7 cm de altura. Qual é o volume?',
+    ops:['13 cm³','28 cm³','56 cm³','112 cm³'], certa:2,
+    exp:'V = 4 · 2 · 7. Fazendo por partes: 4 · 2 = 8 e 8 · 7 = 56 cm³. O 28 sai de esquecer uma das medidas.' },
+
+  { ctx:'Fórmula V = a · b · h',
+    q:'Uma piscina retangular tem 8 m de comprimento, 3 m de largura e 1,5 m de profundidade. Quantos metros cúbicos de água ela comporta cheia?',
+    ops:['12,5 m³','24 m³','36 m³','48 m³'], certa:2,
+    exp:'A profundidade faz o papel da altura: V = 8 · 3 · 1,5. Como 8 · 3 = 24 e 24 · 1,5 = 36, a piscina comporta 36 m³.' },
+
+  { ctx:'A escada das unidades',
+    q:'Quanto vale 2,83 dm³ em centímetros cúbicos?',
+    ops:['0,00283 cm³','28,3 cm³','283 cm³','2 830 cm³'], certa:3,
+    exp:'De dm³ para cm³ descemos um degrau da escada: multiplica por 1 000. Então 2,83 · 1 000 = 2 830 cm³.' },
+
+  { ctx:'A escada das unidades',
+    q:'Para transformar 7 500 cm³ em dm³, o que devemos fazer?',
+    ops:['Multiplicar por 1 000, dando 7 500 000 dm³','Dividir por 1 000, dando 7,5 dm³','Dividir por 100, dando 75 dm³','Multiplicar por 10, dando 75 000 dm³'], certa:1,
+    exp:'De cm³ para dm³ subimos um degrau: a unidade fica maior, então o número diminui. 7 500 ÷ 1 000 = 7,5 dm³.' },
+
+  { ctx:'A escada das unidades',
+    q:'Um centímetro cúbico corresponde a quantos metros cúbicos?',
+    ops:['0,01 m³','0,001 m³','0,000001 m³','1 000 000 m³'], certa:2,
+    exp:'De cm³ até m³ são dois degraus para cima: divide por 1 000 duas vezes, ou seja, por 1 000 000. Logo 1 cm³ = 0,000001 m³.' },
+];
+
+let idx = 0, acertos = 0, respondeu = false;
+const gabarito = [];
+const qNum=document.getElementById('qNum'), qAcertos=document.getElementById('qAcertos'),
+      qBarra=document.getElementById('qBarra'), qContexto=document.getElementById('qContexto'),
+      qTexto=document.getElementById('qTexto'), qOpcoes=document.getElementById('qOpcoes'),
+      qProxima=document.getElementById('qProxima'), qExplica=document.getElementById('qExplica');
+
+function mostraQuestao(){
+  const Q = questoes[idx];
+  respondeu = false;
+  qNum.textContent = `Questão ${idx+1} de ${questoes.length}`;
+  qAcertos.textContent = `${acertos} acerto${acertos===1?'':'s'}`;
+  qBarra.style.width = (idx/questoes.length*100) + '%';
+  qContexto.textContent = Q.ctx;
+  qTexto.textContent = Q.q;
+  qExplica.className = 'explica';
+  qProxima.style.display = 'none';
+  qProxima.textContent = idx === questoes.length-1 ? 'Ver resultado' : 'Próxima questão';
+  qOpcoes.innerHTML = '';
+  Q.ops.forEach((op,i)=>{
+    const b = document.createElement('button');
+    b.className = 'opcao'; b.textContent = op;
+    b.onclick = ()=>responder(i);
+    qOpcoes.appendChild(b);
+  });
+}
+function responder(escolha){
+  if(respondeu) return;
+  respondeu = true;
+  const Q = questoes[idx];
+  const ok = escolha === Q.certa;
+  if(ok) acertos++;
+  [...qOpcoes.children].forEach((c,i)=>{
+    c.disabled = true;
+    if(i === Q.certa){ c.classList.add('certa'); c.innerHTML = c.textContent + '<span class="marca">✓ certa</span>'; }
+    else if(i === escolha){ c.classList.add('errada'); c.innerHTML = c.textContent + '<span class="marca">✗ sua resposta</span>'; }
+  });
+  gabarito.push({n:idx+1, ok, minha:Q.ops[escolha], certa:Q.ops[Q.certa]});
+  qAcertos.textContent = `${acertos} acerto${acertos===1?'':'s'}`;
+  qExplica.className = 'explica on';
+  qExplica.innerHTML = `<b>${ok ? 'Resposta certa' : 'Ainda não'}</b>${Q.exp}`;
+  qProxima.style.display = '';
+  qProxima.focus();
+}
+qProxima.onclick = ()=>{
+  idx++;
+  if(idx < questoes.length) mostraQuestao();
+  else finaliza();
+};
+function finaliza(){
+  document.getElementById('quizAtivo').style.display = 'none';
+  const final = document.getElementById('quizFinal');
+  final.classList.add('on');
+  document.getElementById('fNota').textContent = acertos;
+  const r = acertos/questoes.length;
+  document.getElementById('fRecado').textContent =
+    r === 1 ? 'Gabaritou. Volume não tem mais segredo para você.' :
+    r >= 0.75 ? 'Muito bom! Revise só as questões marcadas em vermelho.' :
+    r >= 0.5 ? 'Bom começo. Volte à escada das unidades e tente de novo.' :
+    'Sem crise: releia as duas etapas com calma e refaça o questionário.';
+  const g = document.getElementById('fGabarito');
+  g.innerHTML = '';
+  gabarito.forEach(item=>{
+    const d = document.createElement('div');
+    d.innerHTML = `<span class="mk ${item.ok?'ok':'no'}">${item.ok?'✓':'✗'} ${item.n}.</span>
+      <span>${item.ok ? 'Você acertou: ' + item.certa : 'Você respondeu <b>' + item.minha + '</b> — o certo era <b>' + item.certa + '</b>'}</span>`;
+    g.appendChild(d);
+  });
+}
+document.getElementById('qRefazer').onclick = ()=>{
+  idx = 0; acertos = 0; gabarito.length = 0;
+  document.getElementById('quizFinal').classList.remove('on');
+  document.getElementById('quizAtivo').style.display = '';
+  mostraQuestao();
+  document.getElementById('quiz').scrollIntoView({block:'start'});
+};
+document.getElementById('qTopo').onclick = ()=>window.scrollTo({top:0});
+mostraQuestao();
+</script>
+</body>
+</html>
